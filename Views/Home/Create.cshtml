@@ -1,0 +1,120 @@
+﻿@{ Layout = null; }
+
+@*Layui相关文件*@
+
+
+
+<script src="~/layer-v3.1.1/layer-v3.1.1/layer/layer.js"></script> @*layer弹窗 js*@
+<link href="~/layer-v3.1.1/layer-v3.1.1/layer/theme/default/layer.css" rel="stylesheet" />
+<link href="~/css/site.css" rel="stylesheet" />
+<script src="~/layui-v2.5.6/layui-v2.5.6/layui/layui.js"></script>  @*layui js*@
+<link href="~/layui-v2.5.6/layui-v2.5.6/layui/css/layui.css" rel="stylesheet" /> @*layui css*@
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+
+<div>
+    <div  >
+        <form class="layui-form" >
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">电影名称：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" id="title" width="150"  required lay-verify="required"  placeholder="请输入电影名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">发布日期：</label>
+                <div class="layui-input-block">
+                    <input type="datetime" name="ReleaseDate" id="ReleaseDate" required lay-verify="required" placeholder="请选择发布日期" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">电影类别：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="Genre" id="Genre" required lay-verify="required" placeholder="请输入电影类别" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">票价：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="Price" id="Price" required lay-verify="required" placeholder="请输入电影票价" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">描述：</label>
+                <div class="layui-input-block">
+                    <textarea name="Decription" id="Decription" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+<script>
+    //日期时间
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#ReleaseDate' //指定元素
+        });
+    });
+
+    layui.use('form', function () {
+        var form = layui.form
+       form.render();//更新全部
+
+ 
+   
+
+
+    //监听提交
+        form.on('submit(formDemo)', function (data) {
+
+      
+
+
+        $.ajax({
+           
+            async: true,
+            dataType: 'json',
+            type: 'post',
+           
+            url:"@Url.Action("CreateMovie", "Movies")",
+            data: data.field,//data.field,
+            success: function (res) {
+                console.log(res);
+                if (res.code == 0) {
+
+                    layer.confirm(res.resultMsg, {
+                        icon: 1,
+                        btn: ["我知道了"],
+                        yes: function (index) {
+                            parent.location.href = "@Url.Action("MyIndex","Home")";
+                            parent.layer.closeAll();//关闭全部
+                        }
+                    });
+                }
+                else {
+
+                    layer.msg(res.resultMsg);
+                }
+
+            }
+
+
+        });
+        return false;
+    });
+
+    });
+
+</script>
+
+

@@ -1,0 +1,164 @@
+﻿
+
+@{ Layout = null; }
+
+
+<script src="~/layer-v3.1.1/layer-v3.1.1/layer/layer.js"></script> @*layer弹窗 js*@
+<link href="~/layer-v3.1.1/layer-v3.1.1/layer/theme/default/layer.css" rel="stylesheet" />
+<link href="~/css/site.css" rel="stylesheet" />
+<script src="~/layui-v2.5.6/layui-v2.5.6/layui/layui.js"></script>  @*layui js*@
+<link href="~/layui-v2.5.6/layui-v2.5.6/layui/css/layui.css" rel="stylesheet" /> @*layui css*@
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+
+
+
+
+<div>
+    <form class="layui-form">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">电影名称：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" id="title" width="150" required lay-verify="required" placeholder="请输入电影名称" autocomplete="off" class="layui-input">
+                <input type="text" name="Id" id="Id" value="@ViewBag.id " hidden="hidden">@*后台的id*@
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布日期：</label>
+            <div class="layui-input-block">
+                <input type="datetime" name="ReleaseDate" id="ReleaseDate" required lay-verify="required" placeholder="请选择发布日期" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电影类别：</label>
+            <div class="layui-input-block">
+                <input type="text" name="Genre" id="Genre" required lay-verify="required" placeholder="请输入电影类别" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">票价：</label>
+            <div class="layui-input-block">
+                <input type="text" name="Price" id="Price" required lay-verify="required" placeholder="请输入电影票价" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">描述：</label>
+            <div class="layui-input-block">
+                <textarea name="Decription" id="Decription" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">提交修改</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    $(function () {
+
+
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render(); //更新全部
+            var index = layer.msg('数据努力加载中...', { icon: 16, shade: 0.4, time: false });
+
+            $.ajax({
+                async: false,
+                dataType: 'json',
+                type: "post",
+                data: { id: $("#Id").val() },
+                url: "@Url.Action("Editquery", "Movies")",
+                success: function (res) {
+                    layer.close(index);
+                    if (res.code == 0) {
+                        var data = res.data;
+                        console.log(data);
+                        $("#title").val(data.title);
+                        $("#ReleaseDate").val(data.releaseDate);
+                        $("#Genre").val(data.genre);
+                        $("#Price").val(data.price);
+                        $("#Decription").text(data.decription);
+                    }
+                }
+            });
+
+
+
+
+            //layui.use('form', function () {
+            //    var form = layui.form;
+            //    form.render(); //更新全部
+
+
+                //监听提交
+                form.on('submit(formDemo)', function(data) {
+                    layer.msg(JSON.stringify(data.field));
+                    $.ajax({
+                        async: true,
+                        dataType: 'json',
+                        type: 'post',
+                        url: "@Url.Action("EditUpdata", "Movies")",
+                        data: data.field,
+                        success: function (res) {
+                            //layer.msg(res);
+                            console.log(res);
+                            if (res.code == 0) {//successfully
+                                layer.confirm(res.resultMsg, {
+                                    icon: 1,
+                                    btn: ["我知道了"],
+                                    yes: function (index) {
+                                        parent.location.href = "@Url.Action("MyIndex","Home")";
+                                        parent.layer.closeAll();//关闭全部
+                                    }
+                                });
+                            } else {
+                                layer.msg(res.resultMsg);
+                            }
+                        }
+                    });
+                    return false;
+                //});
+
+
+            });
+
+        });
+    });
+
+</script>
+      
+
+
+
+
+            @*//var index = layer.msg('数据努力加载中...', { icon: 16, shade: 0.4, time: false });//数据初始化*@
+            @*$ajax({
+                async: false,
+                dataType: 'json',
+                type: "post",
+                data: { id: $("#Id").val() },
+                url: "@Url.Action("Editquery", "Movies")",
+                success: function (res) {
+                    layer.close(index);
+                    if (res.code == 0) {
+                        var data = res.data;
+                        console.log(data);
+                        $("#title").val(data.title);
+                    }
+                }
+
+
+            });*@
+            @*//layui.use('form', function () {
+            //    var form = layui.form;
+            //    form.render(); //更新全部
+
+            //});*@
+
+
+

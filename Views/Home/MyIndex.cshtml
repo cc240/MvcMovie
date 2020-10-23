@@ -1,0 +1,168 @@
+﻿
+
+@{
+    ViewData["Title"] = "MyIndex";
+}
+
+
+<div style="margin-top:4px;"></div>
+<script type="text/html" id="test-table-toolbar-barDemo">
+    <button class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon">&#xe642;</i>编辑</button>
+    <button class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon">&#xe640;</i>删除</button>
+</script>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <!--// 搜索：用户姓名-->
+                    <div class="layui-inline">
+                        <input class="layui-input layui-icon-search" name="id" id="title" autocomplete="off" placeholder="请输入电影名">
+                    </div>
+                    <button class="layui-btn layui-btn" id="queryData"><i class="layui-icon">&#xe615;</i>查询</button>
+                    <button class="layui-btn layui-btn" onclick="addData()"> <i class="layui-icon">&#xe624;</i> 数据添加</button>
+                    <button class="layui-btn layui-btn" id="btn-refresh"><i class="layui-icon">&#xe9aa;</i>刷新</button>
+                </div>
+
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="layUI_Table" lay-filter="layUI_Table"> </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    layui.use('table', function () {
+        var table = layui.table;
+
+        var tableIns = table.render({
+
+            elem: '#layUI_Table'//指定原始表格元素选择器（推荐id选择器）
+
+            , url: '@Url.Action("MyIndex", "Movies")'
+            , totalRow: true //开启合计行
+            , page: true //开启分页
+            , toolbar: '#toolbarDemo'
+            , cellMinWidth: Audio //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , height: 712//容器高度
+            , limit: 15
+            , limits: [15, 30, 60, 90]
+            , cols: [[//设置表头
+                { type: 'checkbox', fixed: 'left' }
+                , { field: 'id', width: 50, title: 'ID' }
+                , { field: 'title', width: 200, title: '电影名' }
+                , { field: 'releaseDate', width: 200, title: '日期', sort: true }
+                , { field: 'genre', width: 80, title: '类别', sort: true }
+                , { field: 'price', width: 80, title: '价格' }
+                , { fixed: 'right', title: '操作', toolbar: "#test-table-toolbar-barDemo", width: 150 }
+            ]]
+        });
+
+        // 刷新
+        $('#btn-refresh').on('click', function () {
+            table.reload('layUI_Table', {
+
+                url: '@Url.Action("MyIndex", "Movies")'
+                ,
+                where:
+                {
+                    searchString: ""
+                }
+            });//表格刷新
+        });
+
+        //数据查询
+        $("#queryData").on('click',
+            function () {
+
+                var title = $("#title").val();
+                if (title == "") {
+                    layer.msg("电影名不能为空~");
+                    return false;
+                }
+                table.reload
+                    ('layUI_Table',
+                        {
+                            url: '@Url.Action("MyIndex", "Movies")'
+                            ,
+                            where:
+                            {
+                                searchString: title
+                            }
+
+                        });
+
+            });
+
+        //监听行工具事件
+        table.on('tool(layUI_Table)', function (obj)
+        {
+            var data = obj.data;
+            console.log(data);
+            if (obj.event == 'del') {//删除数据
+
+                layer.confirm("您确定要删除该条记录码？", function (index) {
+                    $.ajax({
+
+                        async: true,
+                        dataType: 'json',
+                        type: "post",
+                        url: "@Url.Action("DeleteConfirmed","Movies")",
+                        data: { id: data.id },
+                        success: function (res) {
+
+                            if (res.code == 0) {
+                                obj.dal();
+                            }
+                            layer.msg(res.msg);
+                            layer.close(index);
+                        }
+                    });
+                }
+                );
+            }
+            else if (obj.event == 'edit') {
+                //数据修改更新
+                layer.open({
+                    type: 2,
+                    title: '数据编辑',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true,//开启最大化最小化按钮
+                    area: ['700px', '500px'],
+                    content: '@Url.Action("Edit", "Home")?id='+data.id,
+                    
+                });
+            }
+        });
+
+    });
+
+
+    //添加数据弹窗
+    function addData() {
+
+        layer.open({
+            type: 2,
+            title: '添加数据',
+            shadeClose: true,
+            shade: false,
+            
+            maxmin: true,
+            area: ['700px', '500px'],
+              content: '@Url.Action("Create")'
+
+        });
+
+
+
+
+
+
+    }
+
+</script>
+
